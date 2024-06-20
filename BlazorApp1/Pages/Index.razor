@@ -1,0 +1,83 @@
+﻿@page "/"
+
+<div class="d-block">
+  <gantt-canvas style="--columns:@(GetColumns())">
+    @foreach (var task in tasks)
+    {
+      <row>
+        <title>
+          @task.Name
+        </title>
+        <line style="grid-column-start:@(GetStart(task));grid-column-end:@(GetEnd(task))">
+          @((task.End - task.Start).TotalDays)
+        </line>
+      </row>
+    }
+  </gantt-canvas>
+</div>
+
+@code {
+  class Process
+  {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+  }
+  // расчитываем сколько дней у нас надо отрисовать, округляя вверх
+  private int GetColumns() => (int)Math.Ceiling((tasks.Max(x => x.End) - tasks.Min(x => x.Start)).TotalDays);
+  // расчитываем с какой колонки начинать рисовать, окруляя вниз и прибавляем 1 потому что у нас еще заголовок и еще 1 потому что грид считает с 1
+  private int GetStart(Process task) => (int)Math.Floor((task.Start - tasks.Min(x => x.Start)).TotalDays) + 2;
+  // расчитываем конец, округляя вверх, и опять прибавляем 2
+  private int GetEnd(Process task) => (int)Math.Ceiling((task.End - tasks.Min(x => x.Start)).TotalDays) + 2;
+  List<Process> tasks;
+  DateTime dateFrom, dateTo;
+
+  // static double GetTotalDays(DateTime start, DateTime end) => (end - start).TotalDays + 1;
+
+  protected override void OnInitialized()
+  {
+    tasks = new List<Process>()
+        {
+            new Process() {Id = 1, Name = "Процесс 1", Start = new DateTime(2024,6,4), End = new DateTime(2024,6,25)},
+            new Process() {Id = 2, Name = "Процесс 2", Start = new DateTime(2024,6,4), End = new DateTime(2024,6,4)},
+            new Process() {Id = 3, Name = "Процесс 3", Start = new DateTime(2024,6,4), End = new DateTime(2024,6,12)},
+            new Process() {Id = 4, Name = "Процесс 4", Start = new DateTime(2024,6,13), End = new DateTime(2024,6,13)},
+            new Process() {Id = 5, Name = "Процесс 5", Start = new DateTime(2024,6,13), End = new DateTime(2024,6,19)},
+            new Process() {Id = 6, Name = "Процесс 6", Start = new DateTime(2024,6,13), End = new DateTime(2024,6,19)},
+            new Process() {Id = 7, Name = "Процесс 7", Start = new DateTime(2024,6,13), End = new DateTime(2024,6,19)},
+            new Process() {Id = 8, Name = "Процесс 8", Start = new DateTime(2024,6,19), End = new DateTime(2024,6,19)},
+            new Process() {Id = 9, Name = "Процесс 9", Start = new DateTime(2024,6,19), End = new DateTime(2024,6,24)},
+            new Process() {Id = 10, Name = "Процесс 10", Start = new DateTime(2024,6,25), End = new DateTime(2024,6,25)}
+        };
+
+    dateFrom = tasks.Min(x => x.Start);
+    dateTo = tasks.Max(x => x.End);
+
+    base.OnInitialized();
+  }
+}
+
+<style>
+  gantt-canvas {
+    display: grid;
+    grid-template-columns: minmax(100px, 10vw) repeat(var(--columns), minmax(100px, 1fr));
+  }
+
+  row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+  }
+
+  title,
+  line {
+    display: flex;
+    background: oklch(0.86 0.31 152.7 / 0.2);
+  }
+
+  title {
+    position: sticky;
+    left: 0;
+  }
+</style>
