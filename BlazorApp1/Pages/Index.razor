@@ -1,6 +1,11 @@
 ﻿@page "/"
 
 <div class="d-block">
+  <column style="--columns:@(GetColumns())">
+  <row>
+    <title>2</title>
+  </row>
+  </column>
   <gantt-canvas style="--columns:@(GetColumns())">
     @foreach (var task in tasks)
     {
@@ -81,5 +86,12 @@
   title {
     position: sticky;
     left: 0;
+  }
+
+  column {
+    grid-row: 1/-1;
+    grid-column: var(--columns);
+    display: grid;
+    grid-template-rows: subgrid;
   }
 </style>
